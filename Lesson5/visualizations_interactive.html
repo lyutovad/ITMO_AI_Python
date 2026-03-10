@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Интерактивный семинар — Визуализации</title>
+  <style>
+    :root{
+      --bg:#fafafa; --text:#222; --muted:#666; --line:#ddd; --soft:#f7f7f7;
+      --note:#fff7e6; --note-line:#ffe2a8; --ok:#0a7; --bad:#c33; --accent:#111;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 Arial, Helvetica, sans-serif}
+    .wrap{max-width:1140px;margin:0 auto;padding:24px}
+    h1,h2,h3{margin:0 0 10px}
+    h1{font-size:30px}
+    h2{font-size:24px}
+    h3{font-size:18px}
+    .muted{color:var(--muted)}
+    .tabs,.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+    .tab,.subtab{
+      border:1px solid var(--line); border-radius:999px; padding:8px 14px; cursor:pointer;
+      background:white; user-select:none;
+    }
+    .tab.active,.subtab.active{background:var(--accent);color:white;border-color:var(--accent)}
+    .card{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;background:white}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    @media (max-width:920px){.row,.grid3{grid-template-columns:1fr}}
+    label{display:block;font-weight:600;margin:8px 0 6px}
+    input,select,button,textarea{
+      width:100%; padding:10px; border-radius:10px; border:1px solid #ccc; font-size:14px;
+      background:white;
+    }
+    button{cursor:pointer}
+    button.secondary{background:#fff;color:#222}
+    pre{background:var(--soft);padding:10px;border-radius:12px;overflow:auto;white-space:pre-wrap}
+    code{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+    .pill{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid var(--line);font-size:12px;background:#fff}
+    .ok{color:var(--ok);font-weight:700}
+    .bad{color:var(--bad);font-weight:700}
+    .note{background:var(--note);border:1px solid var(--note-line);padding:10px;border-radius:12px}
+    .small{font-size:12px}
+    table{border-collapse:collapse;width:100%;margin-top:10px}
+    th,td{border:1px solid var(--line);padding:8px;text-align:left}
+    th{background:var(--soft)}
+    .panel{display:block}
+    .subpanel{display:block}
+    .center{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .stat{padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .mini-chart{
+      border:1px dashed #bbb;border-radius:12px;padding:14px;background:#fcfcfc;margin-top:8px;
+      min-height:110px;
+    }
+    .bars{display:flex;gap:14px;align-items:flex-end;height:90px;padding:8px 0}
+    .bar{width:28px;background:#999;border-radius:6px 6px 0 0}
+    .linebox svg,.scatterbox svg,.heatbox svg,.boxbox svg,.histbox svg{width:100%;height:110px}
+    ul{margin-top:6px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Lesson — Визуализации данных</h1>
+  <div class="muted">Формат: теория → поиграть → самопроверка. Темы разделены по типам графиков: line plot, bar plot, histogram, scatter plot, boxplot, heatmap, а также оформление графиков и выбор подходящей визуализации.</div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="theory">Теория</div>
+    <div class="tab" data-tab="play">Поиграть</div>
+    <div class="tab" data-tab="quiz">Самопроверка</div>
+  </div>
+
+  <section id="theory" class="panel">
+    <div class="card">
+      <h2>Темы занятия</h2>
+      <div class="note"><b>Цель:</b> научиться выбирать правильный тип графика под задачу, читать визуализации и понимать базовый код на matplotlib / seaborn.</div>
+      <div class="subtabs">
+        <div class="subtab active" data-sub="t_line">Line plot</div>
+        <div class="subtab" data-sub="t_bar">Bar plot</div>
+        <div class="subtab" data-sub="t_hist">Histogram</div>
+        <div class="subtab" data-sub="t_scatter">Scatter plot</div>
+        <div class="subtab" data-sub="t_box">Boxplot</div>
+        <div class="subtab" data-sub="t_heat">Heatmap</div>
+        <div class="subtab" data-sub="t_style">Оформление</div>
+      </div>
+    </div>
+
+    <div id="t_line" class="subpanel">
+      <div class="card">
+        <h2>Line plot</h2>
+        <ul>
+          <li>Подходит для показа изменения показателя по времени или по упорядоченной шкале.</li>
+          <li>Хорошо отвечает на вопросы: растёт ли показатель, падает ли он, есть ли сезонность, резкие скачки.</li>
+          <li>Если категорий много и они не упорядочены, line plot часто не лучший выбор.</li>
+        </ul>
+<pre><code>import matplotlib.pyplot as plt
+
+months = ['Jan', 'Feb', 'Mar', 'Apr']
+sales = [120, 135, 150, 142]
+
+plt.plot(months, sales)
+plt.title('Продажи по месяцам')
+plt.xlabel('Месяц')
+plt.ylabel('Продажи')
+plt.show()</code></pre>
+        <div class="note">Типичный случай: время, даты, шаги обучения, номер эпохи, динамика температуры, курса или продаж.</div>
+      </div>
+    </div>
+
+    <div id="t_bar" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>Bar plot</h2>
+        <ul>
+          <li>Подходит для сравнения категорий между собой.</li>
+          <li>Обычно отвечает на вопросы: у какой группы значение больше, у какой меньше.</li>
+          <li>Если важна именно форма распределения, лучше взять histogram, а не bar plot.</li>
+        </ul>
+<pre><code>cities = ['Москва', 'Казань', 'Томск']
+students = [120, 80, 65]
+
+plt.bar(cities, students)
+plt.title('Количество студентов')
+plt.show()</code></pre>
+        <div class="note">Bar plot — это сравнение групп. Например, продажи по магазинам, число студентов по городам, средняя зарплата по отделам.</div>
+      </div>
+    </div>
+
+    <div id="t_hist" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>Histogram</h2>
+        <ul>
+          <li>Показывает распределение числовой переменной.</li>
+          <li>Помогает увидеть, где значений много, где мало, есть ли асимметрия или длинный хвост.</li>
+          <li>Не предназначена для сравнения именованных категорий.</li>
+        </ul>
+<pre><code>ages = [18, 18, 19, 20, 21, 21, 21, 22, 24, 25, 27, 30]
+
+plt.hist(ages, bins=5)
+plt.title('Распределение возраста')
+plt.xlabel('Возраст')
+plt.ylabel('Частота')
+plt.show()</code></pre>
+        <div class="note">Histogram часто используют для возраста, дохода, длины текста, времени ответа модели, количества слов и других числовых величин.</div>
+      </div>
+    </div>
+
+    <div id="t_scatter" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>Scatter plot</h2>
+        <ul>
+          <li>Нужен для изучения связи двух числовых переменных.</li>
+          <li>Помогает увидеть тренд, кластеры, выбросы.</li>
+          <li>Хорошо подходит для вопросов вида: “связан ли X с Y?”.</li>
+        </ul>
+<pre><code>height = [160, 165, 170, 175, 180]
+weight = [52, 60, 68, 74, 82]
+
+plt.scatter(height, weight)
+plt.xlabel('Рост')
+plt.ylabel('Вес')
+plt.title('Связь роста и веса')
+plt.show()</code></pre>
+        <div class="note">Scatter plot — хороший выбор для роста и веса, часов подготовки и оценки, длины текста и времени обработки.</div>
+      </div>
+    </div>
+
+    <div id="t_box" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>Boxplot</h2>
+        <ul>
+          <li>Показывает медиану, квартили и потенциальные выбросы.</li>
+          <li>Удобен для быстрого сравнения распределений между группами.</li>
+          <li>Хорошо подходит, когда нужно не просто среднее, а форма разброса.</li>
+        </ul>
+<pre><code>scores = [45, 48, 50, 51, 53, 55, 56, 58, 90]
+
+plt.boxplot(scores)
+plt.title('Распределение баллов')
+plt.show()</code></pre>
+        <div class="note">Boxplot полезен, если нужно увидеть устойчивый центр распределения, разброс и подозрительные выбросы.</div>
+      </div>
+    </div>
+
+    <div id="t_heat" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>Heatmap</h2>
+        <ul>
+          <li>Используется для матриц значений.</li>
+          <li>Часто показывает корреляции между признаками.</li>
+          <li>Помогает быстро увидеть сильные и слабые связи по цвету.</li>
+        </ul>
+<pre><code>import seaborn as sns
+
+corr = df[['age', 'salary', 'score']].corr()
+sns.heatmap(corr, annot=True, cmap='coolwarm')</code></pre>
+        <div class="note">Heatmap особенно полезна для корреляционных матриц, таблиц ошибок, сводных таблиц и пересечений признаков.</div>
+      </div>
+    </div>
+
+    <div id="t_style" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>Оформление графиков</h2>
+        <ul>
+          <li>У графика должны быть понятные заголовок и подписи осей.</li>
+          <li>Легенда нужна, если на одном графике несколько серий.</li>
+          <li>Слишком много цветов, подписей и линий перегружают график.</li>
+          <li>Хороший график отвечает на вопрос быстро и без лишнего шума.</li>
+        </ul>
+<pre><code>plt.figure(figsize=(8, 4))
+plt.plot(x, y, label='accuracy')
+plt.title('Качество модели по эпохам')
+plt.xlabel('Эпоха')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.grid(True)
+plt.show()</code></pre>
+        <div class="note">Всегда спрашивайте себя: что должен понять студент или читатель за 5 секунд просмотра графика?</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="play" class="panel" style="display:none;">
+    <div class="card">
+      <h2>Поиграть</h2>
+      <div class="muted">Здесь мини-задачи отдельно по каждому типу графика. Идея — не просто помнить названия, а понимать, когда какой график нужен.</div>
+      <div class="subtabs">
+        <div class="subtab active" data-sub="p_line">Line plot</div>
+        <div class="subtab" data-sub="p_bar">Bar plot</div>
+        <div class="subtab" data-sub="p_hist">Histogram</div>
+        <div class="subtab" data-sub="p_scatter">Scatter plot</div>
+        <div class="subtab" data-sub="p_box">Boxplot</div>
+        <div class="subtab" data-sub="p_heat">Heatmap</div>
+        <div class="subtab" data-sub="p_choice">Выбор графика</div>
+      </div>
+    </div>
+
+    <div id="p_line" class="subpanel">
+      <div class="row">
+        <div class="card">
+          <h3>1) Когда нужен line plot?</h3>
+          <label>Выберите задачу</label>
+          <select id="lineSelect">
+            <option>Показать изменение температуры по дням</option>
+            <option>Сравнить 4 факультета по числу студентов</option>
+            <option>Показать распределение возраста</option>
+          </select>
+          <button id="btnLineSelect">Проверить</button>
+          <div id="lineSelectOut" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Как выглядит идея line plot?</h3>
+          <div class="mini-chart linebox">
+            <svg viewBox="0 0 280 110">
+              <polyline points="20,80 70,65 120,40 170,48 220,25 260,32" fill="none" stroke="#777" stroke-width="3"/>
+              <circle cx="20" cy="80" r="3"/><circle cx="70" cy="65" r="3"/><circle cx="120" cy="40" r="3"/>
+              <circle cx="170" cy="48" r="3"/><circle cx="220" cy="25" r="3"/><circle cx="260" cy="32" r="3"/>
+            </svg>
+          </div>
+          <button id="btnLineRead">Что здесь главное?</button>
+          <div id="lineReadOut" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p_bar" class="subpanel" style="display:none;">
+      <div class="row">
+        <div class="card">
+          <h3>1) Когда нужен bar plot?</h3>
+          <label>Выберите задачу</label>
+          <select id="barSelect">
+            <option>Сравнить продажи по магазинам</option>
+            <option>Показать связь роста и веса</option>
+            <option>Посмотреть форму распределения дохода</option>
+          </select>
+          <button id="btnBarSelect">Проверить</button>
+          <div id="barSelectOut" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Что показывает bar plot?</h3>
+          <div class="mini-chart">
+            <div class="bars">
+              <div class="bar" style="height:30px"></div>
+              <div class="bar" style="height:55px"></div>
+              <div class="bar" style="height:80px"></div>
+              <div class="bar" style="height:45px"></div>
+            </div>
+          </div>
+          <button id="btnBarRead">Показать ответ</button>
+          <div id="barReadOut" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p_hist" class="subpanel" style="display:none;">
+      <div class="row">
+        <div class="card">
+          <h3>1) Histogram или bar plot?</h3>
+          <label>Нужно показать распределение длины текстов</label>
+          <select id="histSelect">
+            <option>Histogram</option>
+            <option>Bar plot</option>
+            <option>Line plot</option>
+          </select>
+          <button id="btnHistSelect">Проверить</button>
+          <div id="histSelectOut" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Что показывает histogram?</h3>
+          <div class="mini-chart histbox">
+            <svg viewBox="0 0 280 110">
+              <rect x="15" y="70" width="30" height="30" fill="#999"/>
+              <rect x="50" y="50" width="30" height="50" fill="#999"/>
+              <rect x="85" y="25" width="30" height="75" fill="#999"/>
+              <rect x="120" y="20" width="30" height="80" fill="#999"/>
+              <rect x="155" y="40" width="30" height="60" fill="#999"/>
+              <rect x="190" y="65" width="30" height="35" fill="#999"/>
+              <rect x="225" y="78" width="30" height="22" fill="#999"/>
+            </svg>
+          </div>
+          <button id="btnHistRead">Что тут важно?</button>
+          <div id="histReadOut" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p_scatter" class="subpanel" style="display:none;">
+      <div class="row">
+        <div class="card">
+          <h3>1) Scatter plot</h3>
+          <label>Для какой задачи он лучше?</label>
+          <select id="scatterSelect">
+            <option>Проверить связь между временем подготовки и оценкой</option>
+            <option>Сравнить факультеты по числу студентов</option>
+            <option>Показать распределение возраста</option>
+          </select>
+          <button id="btnScatterSelect">Проверить</button>
+          <div id="scatterSelectOut" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Что можно увидеть на scatter plot?</h3>
+          <div class="mini-chart scatterbox">
+            <svg viewBox="0 0 280 110">
+              <circle cx="30" cy="85" r="4" fill="#777"/>
+              <circle cx="60" cy="78" r="4" fill="#777"/>
+              <circle cx="90" cy="70" r="4" fill="#777"/>
+              <circle cx="120" cy="63" r="4" fill="#777"/>
+              <circle cx="150" cy="54" r="4" fill="#777"/>
+              <circle cx="180" cy="44" r="4" fill="#777"/>
+              <circle cx="220" cy="37" r="4" fill="#777"/>
+              <circle cx="250" cy="28" r="4" fill="#777"/>
+            </svg>
+          </div>
+          <button id="btnScatterRead">Интерпретация</button>
+          <div id="scatterReadOut" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p_box" class="subpanel" style="display:none;">
+      <div class="row">
+        <div class="card">
+          <h3>1) Когда boxplot особенно полезен?</h3>
+          <label>Выберите задачу</label>
+          <select id="boxSelect">
+            <option>Сравнить разброс баллов у двух групп</option>
+            <option>Показать продажи по месяцам</option>
+            <option>Найти частоты возрастов</option>
+          </select>
+          <button id="btnBoxSelect">Проверить</button>
+          <div id="boxSelectOut" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Что умеет boxplot?</h3>
+          <div class="mini-chart boxbox">
+            <svg viewBox="0 0 280 110">
+              <line x1="140" y1="15" x2="140" y2="95" stroke="#777" stroke-width="2"/>
+              <rect x="105" y="35" width="70" height="35" fill="none" stroke="#777" stroke-width="2"/>
+              <line x1="105" y1="52" x2="175" y2="52" stroke="#777" stroke-width="2"/>
+              <line x1="120" y1="15" x2="160" y2="15" stroke="#777" stroke-width="2"/>
+              <line x1="120" y1="95" x2="160" y2="95" stroke="#777" stroke-width="2"/>
+              <circle cx="220" cy="10" r="4" fill="#777"/>
+            </svg>
+          </div>
+          <button id="btnBoxRead">Что означает точка сверху?</button>
+          <div id="boxReadOut" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p_heat" class="subpanel" style="display:none;">
+      <div class="row">
+        <div class="card">
+          <h3>1) Для чего чаще всего heatmap?</h3>
+          <label>Выберите задачу</label>
+          <select id="heatSelect">
+            <option>Показать корреляции между признаками</option>
+            <option>Показать изменение температуры по дням</option>
+            <option>Показать распределение дохода</option>
+          </select>
+          <button id="btnHeatSelect">Проверить</button>
+          <div id="heatSelectOut" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Что показывает heatmap?</h3>
+          <div class="mini-chart heatbox">
+            <svg viewBox="0 0 280 110">
+              <rect x="20" y="15" width="50" height="25" fill="#ddd"/>
+              <rect x="75" y="15" width="50" height="25" fill="#aaa"/>
+              <rect x="130" y="15" width="50" height="25" fill="#666"/>
+              <rect x="20" y="45" width="50" height="25" fill="#bbb"/>
+              <rect x="75" y="45" width="50" height="25" fill="#ddd"/>
+              <rect x="130" y="45" width="50" height="25" fill="#888"/>
+              <rect x="20" y="75" width="50" height="25" fill="#555"/>
+              <rect x="75" y="75" width="50" height="25" fill="#999"/>
+              <rect x="130" y="75" width="50" height="25" fill="#ddd"/>
+            </svg>
+          </div>
+          <button id="btnHeatRead">Что читают по цвету?</button>
+          <div id="heatReadOut" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p_choice" class="subpanel" style="display:none;">
+      <div class="row">
+        <div class="card">
+          <h3>1) Выберите график под задачу</h3>
+          <label>Нужно показать, как accuracy меняется по эпохам</label>
+          <select id="choice1">
+            <option>Line plot</option>
+            <option>Histogram</option>
+            <option>Boxplot</option>
+          </select>
+          <button id="btnChoice1">Проверить</button>
+          <div id="choice1Out" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Ещё одна задача</h3>
+          <label>Нужно сравнить среднюю зарплату по отделам</label>
+          <select id="choice2">
+            <option>Bar plot</option>
+            <option>Scatter plot</option>
+            <option>Histogram</option>
+          </select>
+          <button id="btnChoice2">Проверить</button>
+          <div id="choice2Out" style="margin-top:12px"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="card">
+          <h3>3) Ещё одна задача</h3>
+          <label>Нужно увидеть распределение времени ответа модели</label>
+          <select id="choice3">
+            <option>Histogram</option>
+            <option>Line plot</option>
+            <option>Heatmap</option>
+          </select>
+          <button id="btnChoice3">Проверить</button>
+          <div id="choice3Out" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>4) И ещё</h3>
+          <label>Нужно проверить связь между длиной текста и числом ошибок</label>
+          <select id="choice4">
+            <option>Scatter plot</option>
+            <option>Bar plot</option>
+            <option>Histogram</option>
+          </select>
+          <button id="btnChoice4">Проверить</button>
+          <div id="choice4Out" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="quiz" class="panel" style="display:none;">
+    <div class="card">
+      <h2>Самопроверка</h2>
+      <div class="muted">Вопросы разделены по типам графиков. Варианты ответов перемешиваются, счёт ведётся отдельно для выбранного банка.</div>
+      <div class="subtabs">
+        <div class="subtab active" data-sub="q_line">Line plot</div>
+        <div class="subtab" data-sub="q_bar">Bar plot</div>
+        <div class="subtab" data-sub="q_hist">Histogram</div>
+        <div class="subtab" data-sub="q_scatter">Scatter plot</div>
+        <div class="subtab" data-sub="q_box">Boxplot</div>
+        <div class="subtab" data-sub="q_heat">Heatmap</div>
+        <div class="subtab" data-sub="q_style">Оформление</div>
+        <div class="subtab" data-sub="q_mix">Смешанные</div>
+      </div>
+      <div class="center" style="margin:10px 0 4px">
+        <div class="stat">Счёт: <span id="score">0/0</span></div>
+        <div class="stat">Банк: <span id="bankName">Line plot</span></div>
+      </div>
+      <div id="quizBox" class="card"></div>
+      <div class="center">
+        <button id="btnCheck">Проверить</button>
+        <button id="btnNext" class="secondary">Следующий вопрос</button>
+        <button id="btnReset" class="secondary">Сбросить банк</button>
+      </div>
+      <div id="feedback" style="margin-top:12px"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function wireTabs(rootSel){
+    const root = document.querySelector(rootSel);
+    root.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        root.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.dataset.tab;
+        document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+        document.getElementById(target).style.display = 'block';
+      });
+    });
+  }
+  wireTabs('body');
+
+  function wireSubtabs(scope){
+    document.querySelectorAll(scope + ' .subtabs').forEach(box => {
+      const tabs = box.querySelectorAll('.subtab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const panels = Array.from(box.parentElement.parentElement.querySelectorAll('.subpanel'));
+          panels.forEach(p => p.style.display = 'none');
+          const el = document.getElementById(tab.dataset.sub);
+          if(el) el.style.display = 'block';
+        });
+      });
+    });
+  }
+  wireSubtabs('#theory');
+  wireSubtabs('#play');
+
+  // Play
+  function setMsg(id, ok, good, bad){
+    document.getElementById(id).innerHTML = ok ? `<div class="ok">${good}</div>` : `<div class="bad">${bad}</div>`;
+  }
+
+  document.getElementById('btnLineSelect').addEventListener('click', ()=>{
+    setMsg('lineSelectOut',
+      document.getElementById('lineSelect').value === 'Показать изменение температуры по дням',
+      'Верно: для динамики по времени line plot подходит лучше всего.',
+      'Не совсем. Line plot обычно используют для динамики по времени или по упорядоченной оси.'
+    );
+  });
+  document.getElementById('btnLineRead').addEventListener('click', ()=>{
+    document.getElementById('lineReadOut').innerHTML = '<div class="ok">Главное здесь — изменение показателя по порядку точек: рост, спад, резкие скачки, общая динамика.</div>';
+  });
+
+  document.getElementById('btnBarSelect').addEventListener('click', ()=>{
+    setMsg('barSelectOut',
+      document.getElementById('barSelect').value === 'Сравнить продажи по магазинам',
+      'Да: bar plot нужен для сравнения категорий.',
+      'Нет. Для сравнения групп или категорий обычно используют bar plot.'
+    );
+  });
+  document.getElementById('btnBarRead').addEventListener('click', ()=>{
+    document.getElementById('barReadOut').innerHTML = '<div class="ok">Bar plot помогает быстро сравнить, какая категория выше или ниже остальных.</div>';
+  });
+
+  document.getElementById('btnHistSelect').addEventListener('click', ()=>{
+    setMsg('histSelectOut',
+      document.getElementById('histSelect').value === 'Histogram',
+      'Верно: распределение числовой переменной удобно показывать histogram.',
+      'Неверно. Для распределения длины текстов нужен histogram.'
+    );
+  });
+  document.getElementById('btnHistRead').addEventListener('click', ()=>{
+    document.getElementById('histReadOut').innerHTML = '<div class="ok">Здесь важно, в каких интервалах значений наблюдений много, а в каких мало. Это график про форму распределения.</div>';
+  });
+
+  document.getElementById('btnScatterSelect').addEventListener('click', ()=>{
+    setMsg('scatterSelectOut',
+      document.getElementById('scatterSelect').value === 'Проверить связь между временем подготовки и оценкой',
+      'Да: scatter plot нужен, когда хотим посмотреть связь двух числовых переменных.',
+      'Нет. Scatter plot обычно используют для связи двух числовых величин.'
+    );
+  });
+  document.getElementById('btnScatterRead').addEventListener('click', ()=>{
+    document.getElementById('scatterReadOut').innerHTML = '<div class="ok">Точки идут вверх, значит можно предположить положительную связь: при росте X обычно растёт и Y.</div>';
+  });
+
+  document.getElementById('btnBoxSelect').addEventListener('click', ()=>{
+    setMsg('boxSelectOut',
+      document.getElementById('boxSelect').value === 'Сравнить разброс баллов у двух групп',
+      'Верно: boxplot полезен для сравнения распределений и разброса.',
+      'Не совсем. Boxplot особенно полезен для разброса, медианы и выбросов.'
+    );
+  });
+  document.getElementById('btnBoxRead').addEventListener('click', ()=>{
+    document.getElementById('boxReadOut').innerHTML = '<div class="ok">Отдельная точка выше “усов” часто означает выброс — необычно большое значение.</div>';
+  });
+
+  document.getElementById('btnHeatSelect').addEventListener('click', ()=>{
+    setMsg('heatSelectOut',
+      document.getElementById('heatSelect').value === 'Показать корреляции между признаками',
+      'Да: heatmap очень часто применяют для корреляционных матриц.',
+      'Нет. Heatmap особенно полезна для матриц значений, например корреляций.'
+    );
+  });
+  document.getElementById('btnHeatRead').addEventListener('click', ()=>{
+    document.getElementById('heatReadOut').innerHTML = '<div class="ok">По цвету читают относительную величину значения: более тёмные или более насыщенные клетки часто означают более сильную связь или большее значение.</div>';
+  });
+
+  document.getElementById('btnChoice1').addEventListener('click', ()=>{
+    setMsg('choice1Out',
+      document.getElementById('choice1').value === 'Line plot',
+      'Верно.',
+      'Лучше взять line plot: это динамика по эпохам.'
+    );
+  });
+  document.getElementById('btnChoice2').addEventListener('click', ()=>{
+    setMsg('choice2Out',
+      document.getElementById('choice2').value === 'Bar plot',
+      'Верно.',
+      'Здесь удобнее bar plot: нужно сравнить категории.'
+    );
+  });
+  document.getElementById('btnChoice3').addEventListener('click', ()=>{
+    setMsg('choice3Out',
+      document.getElementById('choice3').value === 'Histogram',
+      'Верно.',
+      'Для распределения времени ответа нужен histogram.'
+    );
+  });
+  document.getElementById('btnChoice4').addEventListener('click', ()=>{
+    setMsg('choice4Out',
+      document.getElementById('choice4').value === 'Scatter plot',
+      'Верно.',
+      'Чтобы посмотреть связь двух числовых величин, лучше scatter plot.'
+    );
+  });
+
+  // Quiz banks
+  const bank_line = [
+    {q:"Для какой задачи лучше всего подходит line plot?", options:["Показать изменение показателя по времени","Сравнить категории по среднему значению","Показать распределение возраста","Показать корреляционную матрицу"], correct:0, explain:"Line plot обычно применяют для динамики по времени или упорядоченной оси."},
+    {q:"Что чаще всего читают на line plot?", options:["Тренд, рост, спад, скачки","Только количество категорий","Только медиану","Только число пропусков"], correct:0, explain:"Line plot помогает увидеть общую динамику и локальные изменения."},
+    {q:"Какой код ближе всего к line plot в matplotlib?", options:["plt.plot(x, y)","plt.bar(x, y)","plt.hist(y)","plt.scatter(x, y)"], correct:0, explain:"plot — основной вызов для линейного графика."},
+    {q:"Что не является типичным случаем для line plot?", options:["Сравнение 5 несвязанных категорий","Динамика температуры по дням","Изменение loss по эпохам","Курс валюты по датам"], correct:0, explain:"Для сравнения отдельных категорий обычно лучше bar plot."},
+    {q:"Если на одном графике две линии, что часто нужно добавить?", options:["Легенду","Только boxplot","Только heatmap","Ничего никогда не нужно"], correct:0, explain:"Легенда помогает понять, какая линия чему соответствует."},
+    {q:"Что особенно важно на line plot с датами?", options:["Порядок точек по времени","Количество bins","Ширина столбцов","Размер коробки"], correct:0, explain:"Смысл line plot строится на правильном порядке наблюдений."}
+  ];
+
+  const bank_bar = [
+    {q:"Когда bar plot обычно лучше line plot?", options:["Когда нужно сравнить категории","Когда нужно показать распределение числовой переменной","Когда нужно показать корреляцию","Когда нужно показать выбросы"], correct:0, explain:"Bar plot — базовый график для сравнения групп."},
+    {q:"Что показывает bar plot?", options:["Значение по категориям","Точки в координатах X-Y","Частоты интервалов числовой переменной","Корреляционную матрицу"], correct:0, explain:"Каждый столбец соответствует категории."},
+    {q:"Какой код соответствует bar plot?", options:["plt.bar(categories, values)","plt.plot(categories, values)","plt.hist(values)","plt.boxplot(values)"], correct:0, explain:"Для столбчатой диаграммы в matplotlib используют bar."},
+    {q:"Что удобнее сравнивать bar plot?", options:["Магазины, факультеты, города, отделы","Только даты","Только интервалы возраста","Только пары чисел"], correct:0, explain:"Это сравнение именованных групп."},
+    {q:"Что часто неверно показывать через bar plot?", options:["Распределение большой числовой выборки","Средний балл по группам","Число студентов по факультетам","Продажи по магазинам"], correct:0, explain:"Для распределения числовой переменной логичнее histogram."},
+    {q:"Если нужно показать среднее значение по каждой группе, что часто подходит?", options:["Bar plot","Heatmap","Only line plot","Only boxplot"], correct:0, explain:"Bar plot — простой и понятный способ сравнить агрегированные значения."}
+  ];
+
+  const bank_hist = [
+    {q:"Histogram используют, когда нужно...", options:["Показать распределение числовой переменной","Сравнить несколько категорий","Показать связь роста и веса","Показать корреляцию между признаками"], correct:0, explain:"Histogram — это про распределение значений."},
+    {q:"Что обычно находится по оси X в histogram?", options:["Интервалы значений переменной","Названия категорий","Имена признаков","Номера столбцов"], correct:0, explain:"Histogram делит числовую ось на интервалы."},
+    {q:"Какой код ближе всего к histogram?", options:["plt.hist(values, bins=10)","plt.bar(values)","plt.plot(values)","plt.scatter(x, y)"], correct:0, explain:"hist строит гистограмму."},
+    {q:"Что можно увидеть на histogram?", options:["Асимметрию и форму распределения","Только точные пары x и y","Только медиану и квартили","Только корреляции"], correct:0, explain:"Histogram помогает увидеть хвосты, пики и перекос."},
+    {q:"Для чего параметр bins?", options:["Для задания числа интервалов","Для задания легенды","Для задания маркера точек","Для сортировки данных"], correct:0, explain:"bins определяет, на сколько частей делится шкала."},
+    {q:"Что из этого чаще всего показывают histogram?", options:["Возраст, доход, длину текста, время ответа","Список городов","Факультеты","Названия предметов"], correct:0, explain:"Все это — числовые величины, для которых важна форма распределения."}
+  ];
+
+  const bank_scatter = [
+    {q:"Scatter plot нужен, когда мы хотим...", options:["Посмотреть связь двух числовых переменных","Показать число объектов по категориям","Показать распределение одной числовой переменной","Показать корреляционную матрицу"], correct:0, explain:"Scatter plot — про пары чисел и связь между ними."},
+    {q:"Что можно увидеть на scatter plot?", options:["Тренд, кластеры, выбросы","Только число bins","Только медиану","Только названия категорий"], correct:0, explain:"Точки помогают заметить структуру зависимости."},
+    {q:"Какой код соответствует scatter plot?", options:["plt.scatter(x, y)","plt.hist(y)","plt.boxplot(y)","plt.bar(x, y)"], correct:0, explain:"scatter — стандартный вызов точечного графика."},
+    {q:"Какая задача лучше всего подходит для scatter plot?", options:["Связь часов подготовки и оценки","Средний балл по группам","Распределение роста","Корреляционная матрица"], correct:0, explain:"Обе переменные числовые, и интересует именно связь."},
+    {q:"Если точки на scatter plot поднимаются слева направо, это может означать...", options:["Положительную связь","Отсутствие данных","Только выброс","Что нужно использовать heatmap"], correct:0, explain:"При росте одной переменной часто растет и другая."},
+    {q:"Что плохо подходит для scatter plot?", options:["Сравнение трёх факультетов по числу студентов","Связь роста и веса","Связь длины текста и времени обработки","Связь цены и количества покупок"], correct:0, explain:"Сравнение категорий лучше показать bar plot."}
+  ];
+
+  const bank_box = [
+    {q:"Boxplot помогает увидеть...", options:["Медиану, квартили и выбросы","Только число категорий","Только корреляции","Только частоты интервалов"], correct:0, explain:"Boxplot кратко показывает структуру распределения."},
+    {q:"Когда boxplot особенно полезен?", options:["Когда важно сравнить разброс в группах","Когда нужно показать тренд по времени","Когда нужно показать точные пары x и y","Когда нужно показать матрицу корреляций"], correct:0, explain:"Boxplot силён именно в сравнении распределений и выбросов."},
+    {q:"Какой код соответствует boxplot?", options:["plt.boxplot(values)","plt.plot(values)","plt.scatter(x, y)","plt.hist(values)"], correct:0, explain:"boxplot строит коробчатую диаграмму."},
+    {q:"Что часто означает отдельная точка за пределами “усов”?", options:["Потенциальный выброс","Подпись оси","Бин","Категорию"], correct:0, explain:"Такая точка часто сигнализирует об очень необычном значении."},
+    {q:"Что boxplot показывает лучше, чем просто среднее?", options:["Разброс и устойчивый центр распределения","Только названия объектов","Только количество пропусков","Только корреляцию"], correct:0, explain:"Один boxplot сообщает гораздо больше, чем одно среднее значение."},
+    {q:"Для какой задачи boxplot подходит лучше bar plot?", options:["Сравнить распределение баллов двух групп","Сравнить число студентов по факультетам","Показать продажи по магазинам","Показать количество новостей по дням"], correct:0, explain:"Если важен разброс, а не только одно число на группу, boxplot часто лучше."}
+  ];
+
+  const bank_heat = [
+    {q:"Heatmap чаще всего используют для...", options:["Матрицы значений, например корреляций","Динамики по месяцам","Распределения возраста","Связи роста и веса"], correct:0, explain:"Один из самых типичных случаев — матрица корреляций."},
+    {q:"Что обычно кодирует цвет в heatmap?", options:["Величину значения","Название категории","Номер строки","Тип оси"], correct:0, explain:"Чем сильнее цвет, тем больше или меньше значение по шкале."},
+    {q:"Какой инструмент часто используют для heatmap в Python?", options:["sns.heatmap(...)","plt.scatter(...)","plt.hist(...)","plt.boxplot(...)"], correct:0, explain:"В seaborn heatmap — очень распространённый способ строить такие графики."},
+    {q:"Что можно быстро заметить на heatmap корреляций?", options:["Сильные и слабые связи между признаками","Только среднее значение","Только число пропусков","Только выбросы"], correct:0, explain:"Цвет помогает быстро увидеть участки сильной связи."},
+    {q:"Что из этого лучше всего подходит для heatmap?", options:["Матрица ошибок или корреляций","Возраст студентов","Продажи по месяцам","Рост и вес"], correct:0, explain:"Heatmap особенно хороша там, где данные уже организованы в матрицу."},
+    {q:"Что может помочь лучше читать heatmap?", options:["Подписи значений и понятная шкала цветов","Скрыть все подписи","Убрать названия осей","Сделать всё одного цвета"], correct:0, explain:"Подписи и шкала повышают читаемость."}
+  ];
+
+  const bank_style = [
+    {q:"Что почти всегда полезно добавить к графику?", options:["Понятный заголовок и подписи осей","Случайные цвета без смысла","Максимум декоративных элементов","Как можно больше текста поверх линий"], correct:0, explain:"Главная цель — ясность, а не украшательство."},
+    {q:"Когда нужна легенда?", options:["Когда на графике несколько серий и их нужно различать","Когда есть только одна колонка данных","Только для histogram","Никогда"], correct:0, explain:"Легенда нужна, если иначе непонятно, какая серия что означает."},
+    {q:"Что обычно делает plt.grid(True)?", options:["Добавляет сетку для чтения значений","Удаляет оси","Переводит bar plot в heatmap","Сортирует данные"], correct:0, explain:"Сетка может сделать чтение координат удобнее."},
+    {q:"Что такое плохое оформление графика?", options:["Когда он перегружен подписями, цветами и лишними элементами","Когда у него есть заголовок","Когда у него подписаны оси","Когда данные читаются быстро"], correct:0, explain:"Перегрузка ухудшает восприятие."},
+    {q:"Что важно спросить перед построением графика?", options:["Какой вопрос должен решать этот график?","Как сделать как можно больше цветов?","Как сделать больше декоративных деталей?","Как скрыть смысл данных?"], correct:0, explain:"График — это ответ на конкретный вопрос."},
+    {q:"Что обычно делает figsize?", options:["Меняет размер фигуры","Меняет тип графика","Сортирует значения","Добавляет выбросы"], correct:0, explain:"Это настройка размера изображения графика."}
+  ];
+
+  const bank_mix = bank_line.concat(bank_bar, bank_hist, bank_scatter, bank_box, bank_heat, bank_style);
+
+  function prepareBank(bank){
+    return shuffle(bank).map(item => {
+      const opts = item.options.map((text, idx) => ({text, isCorrect: idx === item.correct}));
+      const shuffled = shuffle(opts);
+      return {
+        q: item.q,
+        options: shuffled.map(x => x.text),
+        correct: shuffled.findIndex(x => x.isCorrect),
+        explain: item.explain
+      };
+    });
+  }
+
+  const bankNames = {
+    q_line:'Line plot',
+    q_bar:'Bar plot',
+    q_hist:'Histogram',
+    q_scatter:'Scatter plot',
+    q_box:'Boxplot',
+    q_heat:'Heatmap',
+    q_style:'Оформление',
+    q_mix:'Смешанные'
+  };
+  const rawBanks = { q_line:bank_line, q_bar:bank_bar, q_hist:bank_hist, q_scatter:bank_scatter, q_box:bank_box, q_heat:bank_heat, q_style:bank_style, q_mix:bank_mix };
+  let currentKey = 'q_line';
+  let currentBank = prepareBank(rawBanks[currentKey]);
+  let idx = 0;
+  let scoreOk = 0;
+  let scoreTotal = 0;
+
+  document.querySelectorAll('#quiz .subtab').forEach(st => {
+    st.addEventListener('click', () => {
+      document.querySelectorAll('#quiz .subtab').forEach(x => x.classList.remove('active'));
+      st.classList.add('active');
+      currentKey = st.dataset.sub;
+      currentBank = prepareBank(rawBanks[currentKey]);
+      idx = 0; scoreOk = 0; scoreTotal = 0;
+      renderQuiz();
+    });
+  });
+
+  function renderQuiz(){
+    const item = currentBank[idx];
+    document.getElementById('bankName').textContent = bankNames[currentKey];
+    document.getElementById('score').textContent = `${scoreOk}/${scoreTotal}`;
+    document.getElementById('quizBox').innerHTML = `
+      <div class="muted">Вопрос ${idx+1} из ${currentBank.length}</div>
+      <pre><code>${item.q}</code></pre>
+      <div style="margin-top:10px;">
+        ${item.options.map((opt,i)=>`
+          <label style="font-weight:400; display:block; margin:6px 0;">
+            <input type="radio" name="quiz" value="${i}" style="width:auto; margin-right:8px;"> ${opt}
+          </label>`).join('')}
+      </div>`;
+    document.getElementById('feedback').innerHTML = '';
+  }
+
+  function getSelected(){
+    const el = document.querySelector('input[name="quiz"]:checked');
+    return el ? Number(el.value) : null;
+  }
+
+  document.getElementById('btnCheck').addEventListener('click', ()=>{
+    const sel = getSelected();
+    const item = currentBank[idx];
+    if(sel === null){
+      document.getElementById('feedback').innerHTML = '<span class="bad">Выберите вариант.</span>';
+      return;
+    }
+    scoreTotal += 1;
+    if(sel === item.correct){
+      scoreOk += 1;
+      document.getElementById('feedback').innerHTML = `<div class="ok">Верно.</div><div class="muted">${item.explain}</div>`;
+    } else {
+      document.getElementById('feedback').innerHTML = `<div class="bad">Неверно.</div><div class="muted">${item.explain}</div>`;
+    }
+    document.getElementById('score').textContent = `${scoreOk}/${scoreTotal}`;
+  });
+
+  document.getElementById('btnNext').addEventListener('click', ()=>{
+    idx = (idx + 1) % currentBank.length;
+    renderQuiz();
+  });
+
+  document.getElementById('btnReset').addEventListener('click', ()=>{
+    currentBank = prepareBank(rawBanks[currentKey]);
+    idx = 0; scoreOk = 0; scoreTotal = 0;
+    renderQuiz();
+  });
+
+  renderQuiz();
+</script>
+</body>
+</html>
