@@ -7,6 +7,7 @@
 - [3. Работа в Colab, Воспроизводимость, Git, Numpy (30.09.2025)](Lesson%203)
 - [4. Работа c Pandas (06.03.2026)](Lesson%204)
 - [5. Работа c Pandas, plotly: визуализации (10.03.20256)](Lesson%205)
+- [6. Удаление дублей, заполнение пропусков (13.03.20256)](Lesson%205)
 
 
 ### Домашние работы
@@ -17,3 +18,4 @@
 | 1 | [HW1](Homeworks/itmo_ai_python_course_hw1.md) | 20 | 10.03.2026 23:59 (MSK) | 17.03.2026 23:59 (MSK) | −50% |
 | 2 | [HW2](Homeworks/itmo_ai_python_course_hw2.md) | 20 | 13.03.2026 23:59 (MSK) | 20.03.2026 23:59 (MSK) | −50% |
 | 3 | [HW3](Homeworks/itmo_ai_python_course_hw3.md) | 20 | 17.03.2026 23:59 (MSK) | 24.03.2026 23:59 (MSK) | −50% |
+| 4 | [HW3](Homeworks/itmo_ai_python_course_hw4.md) | 20 | 20.03.2026 23:59 (MSK) | 27.03.2026 23:59 (MSK) | −50% |
